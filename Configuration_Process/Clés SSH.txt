@@ -1,0 +1,20 @@
+SSH
+
+1. installation de openssh-server sur client et server
+sudo apt upgrade
+sudo apt install openssh-server -y
+
+2. Statut de ssh
+sudo systemctl start ssh
+sudo systemctl enable ssh
+sudo systemctl status ssh
+
+3. Génération d'une clé sur le client
+ssh-keygen -t rsa
+
+4. Copier la clé publique sur le serveur
+ssh-copy-id user@nomserveur
+
+5. Vérification
+ssh user@nomserveur
+==> la connexion devrait s'effectuer sans demande de mot de passe

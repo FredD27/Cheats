@@ -1,0 +1,21 @@
+ad
+### Installation AD
+1. *Manage* ---> *Add Roles and Features*---> *Role-based or Feature-based installation*
+2. Sélectionner le serveur
+3. Cocher *Active Directory Domain Services* et accepter l'installation des features proposées. Cliquer sur *Promote this server to a domain controller*
+6. Cliquer sur *Add a new forest* et entrer un nom de domaine racine, ex : wilders.lan
+7. Laisser *Windows Server 2016* en level et laisser coché *DNS* et *GC*
+8. Un message d'erreur apparait indiquant que le serveur DNS ne peut pas être créé, ne rien faire et cliquer sur *Next*
+9. Indiquer *DOMAINE* dans NetBIOS domain name.
+10. Pour les emplacements de la base de données ADDS, laisser les dossiers proposés par défaut.
+11. Récapitulatif ---> Cliquer sur *Next*
+12. Confirmation ---> Cliquer sur *Install*
+
+### Nouvelle étendue DHCP
+1. Ouvrir l'app DHCP ---> clic-droit sur IPv4 ---> *New Scope*
+2. Donner un nom et une description
+3. Entrer l'adresse IP de départ de la nouvelle étendue et l'adresse IP de fin.
+4. Bail 8jours
+5. Demander la configuration des paramètres DHCP maintenant
+6. Nom de domaine et serveurs DNS est prérempli avec le nom du domaine et l’adresse IP du serveur principal. Laisser ainsi et cliquer *Next*
+7. Cocher *Yes, I want to activate this scope now* puis *Next*

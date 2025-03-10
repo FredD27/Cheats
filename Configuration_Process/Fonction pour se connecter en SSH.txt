@@ -1,0 +1,19 @@
+#Fonction pour se connecter en SSH au client
+function Connect-SSH {
+  param (
+      [string]$usernameCl = "wilder",
+      [string]$IPCl = "10.2.0.14"
+  )
+
+  # Demande du mot de passe
+  $password = Read-Host -AsSecureString "Enter SSH password for $usernameCl@$IPCl"
+
+  # Conversion du mot de passe pour SSH
+  $credential = New-Object System.Management.Automation.PSCredential ($usernameCl, $password)
+
+  # Utilise la commande SSH avec l'utilisateur et l'IP
+  ssh "$username@$IPCl"
+}
+
+# Appeler la fonction pour initier la connexion
+Connect-SSH

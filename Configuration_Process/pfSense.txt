@@ -1,0 +1,31 @@
+### Installation
+1. Installer une vm avec l'iso de pfsense
+2. Ajouter 2 cartes réseaux : une WAN pour le raccord à internet et une LAN pour la patte locale.
+
+### Configuration
+1. Au démarrage de la machine, la configuration de pfsense se lance. Préciser vtnet0 pour l'interface WAN (il faut que la configuration des cartes réseau corresponde), et vtnet1 pour l'interface LAN.
+2. Configurer l'adresse IP de l'interface WAN en choisissant 2) dans le menu de configuration. Entrer l'ip du routeur qui permet la communication avec internet (ex:10.1.0.240). Ne pas configurer pour l'instant de DHCP ni de http Configurator.
+3. Configurer l'adresse IP de l'interface LAN en choisissant 2) dans le menu de configuration.(ex: 192.168.0.1)
+4. Aller sur un client avec la même interface LAN, avec une adresse IP configurée en statique, sur par ex :192.168.0.10
+5. Toujours le client, aller dans le navigateur et accéder à l'interface graphique de pfsense, dans notre ex en utilisant l'ip 10.1.0.240
+6. Rentrer le hostname du pfsense et donner les adresses DNS, en primary 8.8.8.8 et secondary 9.9.9.9
+7. Pour autoriser les ping, débloquer les entrées provenant du WAN.
+8. Changer le password et reload
+
+### Règle de filtrage
+1. Sur l'interface gaphique via toujours le navigateur, cliquer sur _Firewall_ ---> _Rules_ ---> Bouton `Add` flèche vers le haut
+2. Configurer comme ceci : 
+- Action : Block
+- Interface : LAN
+- Address Family : IPv4
+- Source : Address or Alias, IP de la machine cliente, pour notre exercice par ex : 192.168.0.11
+- Destination : Any
+3. Cliquer sur `Save` puis sur `Apply changes`
+
+### Test
+4. Sur le client avec l'ip 192.168.0.11, le ping vers l'extérieur, par ex ping 8.8.8.8 agit comme prévu, il ne fonctionne pas.
+
+
+
+
+ 

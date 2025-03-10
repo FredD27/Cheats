@@ -1,0 +1,180 @@
+gnulinux comme routeur ip
+
+1. Configuration machine 10
+vi /etc/network/interfaces
+
+auto ens3
+
+#IPv4 configuration
+iface ens3 inet static
+   address 10.0.0.10
+   netmask 255.255.255.0
+   gateway 10.0.0.1
+
+#IPv6 configuration
+iface ens3 inet6 static
+   address fde6:5910:bcf6::10/64
+   Gateway fde6:5910:bcf6::1
+
+2. Configuration machine 11
+vi /etc/network/interfaces
+
+auto ens3
+
+#IPv4 configuration
+iface ens3 inet static
+   address 10.0.0.11
+   netmask 255.255.255.0
+   gateway 10.0.0.1
+
+#IPv6 configuration
+iface ens3 inet6 static
+   address fde6:5910:bcf6::11/64
+   Gateway fde6:5910:bcf6::1
+
+3. Configuration Routeur RO
+vi /etc/network/interfaces
+
+auto ens3
+auto ens4
+
+#ens3 IPv4
+iface ens3 inet static
+   address 10.0.0.1
+   netmask 255.255.255.0
+
+#ens3 IPv6
+iface ens3 inet6 static
+   address fde6:5910:bcf6::1/64
+
+#ens4 IPV4
+iface ens4 inet static
+   address 192.168.0.250
+   netmask 255.255.255.0
+
+#ens4 IPv6
+iface ens4 inet6 static
+   address fde6:5910:bcf6:192::250/64
+
+4. Dans R0,
+vi /etc/sysctl.conf
+Décommenter les lignes suivantes pour charger les modifications à chaque démarrage :
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding=1
+Pour appliquer la configuration :
+sudo sysctl -p 
+
+5. Dans machine 10 et 11:
+ip route add default via fde6:5910:bcf6::1
+
+6. Configuration R1
+vi /etc/network/interfaces
+
+allow-hotplug ens3
+iface ens3 inet dhcp
+
+auto ens3
+iface ens3 inet static
+   address 192.168.0.251
+   netmask 255.255.255.0
+
+iface ens3 inet6 static
+   address fde6:5910:bcf6:192::251/64
+
+allow-hotplug ens4
+auto ens4
+iface ens4 inet static
+   address 10.0.1.1
+   netmask 255.255.255.0
+
+iface ens4 inet6 static
+   address fde6:5910:bcf6:1::1/64
+
+si lors du ip a, les ip ne s'affichent pas comme prévu, exécuter la commande : systemctl restart networking
+
+7. R1 : vi /etc/sysctl.conf 
+Décommenter les lignes suivantes pour charger les modifications à chaque démarrage :
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding=1
+Pour appliquer la configuration :
+sudo sysctl -p
+
+8. Configuration R2
+vi /etc/network/interfaces
+
+auto ens3
+iface ens3 inet static
+   address 192.168.0.252
+   netmask 255.255.255.0
+
+iface ens3 inet6 static
+   address fde6:5910:bcf6:192::252/64
+
+auto ens4
+iface ens4 inet static
+   address 10.0.2.1
+   netmask 255.255.255.0
+
+iface ens4 inet6 static
+   address fde6:5910:bcf6:2::1/64
+
+9. R2 : vi /etc/sysctl.conf 
+Décommenter les lignes suivantes pour charger les modifications à chaque démarrage :
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding=1
+Pour appliquer la configuration :
+sudo sysctl -p
+
+
+10. Machine 12
+vi /etc/network/interfaces
+
+auto ens3
+iface ens3 inet static
+   address 10.0.1.12
+   netmask 255.255.255.0
+   gateway 10.0.1.1
+
+iface ens3 inet6 static
+   address fde6:5910:bcf6:1::12/64
+   gateway fde6:5910:bcf6:1::1
+
+11. Machine 13
+vi /etc/network/interfaces
+
+auto ens3
+iface ens3 inet static
+   address 10.0.2.13
+   netmask 255.255.255.0
+   gateway 10.0.2.1
+
+iface ens3 inet6 static
+   address fde6:5910:bcf6:2::13/64
+   gateway fde6:5910:bcf6:2::1
+
+12. Configuration table de routage R0
+#10.0.1.0/24 via R1
+ip route add 10.0.1.0/24 via 192.168.0.251
+ip -6 route add fde6:5910:bcf6:1::/64 via fde6:5910:bcf6:192::251
+
+#10.0.2.0/24 via R2
+ip route add 10.0.2.0/24 via 192.168.0.252
+ip -6 route add fde6:5910:bcf6:2::/64 via fde6:5910:bcf6:192::252
+
+13. Configuration table de routage R1
+#10.0.2.0/24 via R2
+ip route add 10.0.2.0/24 via 192.168.0.252                      
+ip -6 route add fde6:5910:bcf6:2::/64 via fde6:5910:bcf6:192::252
+
+#10.0.0.0/24 via R0
+ip route add 10.0.0.0/24 via 192.168.0.250
+ip -6 route add fde6:5910:bcf6::/64 via fde6:5910:bcf6:192::250
+
+14. Configuration table de routage R2
+#10.0.1.0/24 via R1
+ip route add 10.0.1.0/24 via 192.168.0.251
+ip -6 route add fde6:5910:bcf6:1::/64 via fde6:5910:bcf6:192::251
+
+#10.0.0.0/24 via R0 :
+ip route add 10.0.0.0/24 via 192.168.0.250
+ip -6 route add fde6:5910:bcf6::/64 via fde6:5910:bcf6:192::250

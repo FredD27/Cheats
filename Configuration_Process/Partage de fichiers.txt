@@ -1,0 +1,61 @@
+partage de fichiers
+
+#### Installation du rôle Serveur de fichiers
+1. Cliquer sur _Manage_ ---> _Add Roles and Features_ ---> _Role-based installation_ 
+2. Sélectionner le serveur et cocher _File and Storage Services_ puis _Storage Services_
+3. Terminer l'installation
+
+#### Créer un dossier à partager
+1. Aller à la racine du disque C e créer un nouveau dossier nommé "Documents_Entreprise"
+2. Créer 3 sous dossiers "RH", "Comptabilité" et "Direction"
+
+#### Créer les groupes dans ADDS
+1. Cliquer sur _Tools_ ---> _Active Directory Users ans Computers_ ---> clic-droit sur le domaine puis _New_ ---> _Organizational Unit_ ---> créer "Entreprise"
+2. Clic-droit sur "Entreprise" ---> _New_ ---> _Group_ ---> créer "RH" puis répéter la manipulation pour le groupe "Comptabilité" puis pour le groupe "Direction"
+
+#### Création d'un partage
+1. Dans le gestionnaire de serveur, cliquer sur _File and Storage Services_ ---> _Shares_ ---> _Tasks_ ---> _New Share..._
+2. Choisir _SMB Share - Quick_
+3. Choisir l'emplacement du fichier partagé avec _Type a custom path_ puis _Browse_, sélectionner le chemin vers "Documents_Entreprise"
+4. Nommer le partage "Docs"
+5. Configurer les permissions NTFS et de partage selon les besoins
+6. Terminer l'assistant
+
+#### Configuration des permissions NTFS
+**Pour tous les utilisateurs**
+1. Clic-droit sur "Documents_Entreprise" ---> _Properties_ ---> _Security_
+2. Cliquer sur _Edit_ ---> _Add..._ ---> Dans le carré blanc, rechercher "everyone" puis cliquer sur _Checknames_ ---> _OK_ ---> cocher dans la colonne _Allow_ uniquement _Read_ ---> _Apply_ ---> _OK_
+**Pour le groupe RH**
+Clic-droit sur le sous dossier "RH", de la même manière attribuer l'accès au groupe "RH" uniquement en lecture et écriture (read, write)
+**Pour le groupe "Comptabilité"**
+Clic-droit sur le sous dossier "Comptabilité", de la même manière attribuer l'accès au groupe "Comptabilité" uniquement en lecture et écriture (read, write)
+**Pour le groupe "Direction"**
+Clic-droit sur le dossier "Documents_Entreprise", de la même manière attribuer l'accès au groupe "Direction" uniquement en lecture et écriture 
+
+#### Lister tous les partages avec PowerShell
+````
+Get-SmbShare
+````
+On voit bien le partage "Docs" correspondant au chemin "C:\Documents_Entreprise"
+
+#### Configuration des lecteurs réseau sur un client du domaine
+1. Ouvrir PowerShell en administrateur
+````
+New-PSDrive -Name "Z" -PSProvider FileSystem -Root "\\Serveur1\Docs" -Persist
+````
+2. Voir les lecteurs mappés
+````
+Get-PSDrive -PSProvider FileSystem
+````
+
+
+
+
+
+
+
+
+
+
+
+

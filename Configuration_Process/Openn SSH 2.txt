@@ -1,0 +1,53 @@
+Openn SSH
+
+#### Installation d'OpenSSH Server sur Ubuntu Server
+````bash
+sudo apt install openssh-server
+````
+
+#### Génération d'une paire de clé d'authentification sur le client Ubuntu
+````bash
+ssh-keygen -t ed25519 -C "wilder@ubuntuCli"
+````
+#### Copie de la clé publique sur le serveur
+Entrer cette commande dans la machine cliente : 
+````bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub wilder@ubuServer
+````
+
+#### Configuration d'OpenSSH sur le serveur
+1. Editer le fichier /etc/ssh/sshd_config
+````bash
+vim /etc/ssh/sshd_config
+````
+````
+#Choix du port TCP
+Port 222
+#Choix de la version IPv6
+AddressFamily inet6
+#Écoute sur toutes les interfaces IPv6
+ListenAddress ::
+#Autoriser uniquement l'utilisateur "wilder"
+AllowUsers wilder
+#Activer l'authentification par clé publique
+PubkeyAuthentication yes
+#Authentification par mots de passe désactivée
+PasswordAuthentication no
+#Fichier contenant les clés publiques autorisées
+AuthorizedKeysFile .ssh/authorized_keys
+````
+
+2. Valider la configuration, pas d'erreur de syntaxe
+````bash
+sshd -t
+````
+
+3. Activer la nouvelle configuration
+````bash
+systemctl reload-or-restart sshd
+````
+
+#### Connexion du client vers le serveur
+````bash
+ssh wilder@ubuServer
+````

@@ -1,0 +1,44 @@
+RAID1 Linux
+1. Monter 3 disques durs sur la VM de 5Go chacun
+2. Partitionner le disque sdb en lui donnant le type RAID Linux Auto
+````bash
+sudo fdisk /dev/sdb
+````
+Entrer les commandes : n/p/Entrée/Entrée/Entrée/t/fd (`fd`pour le type RAID)
+Ecrire avec w et quitter l'utilitaire.
+3. Reproduire avec sdc
+4. Création du RAID
+````bash
+sudo mdadm --create /dev/md0 --level 1 --raid-devices 2 /dev/sdb1 /dev/sdc1
+````n
+5. Vérification
+````bash
+cat /proc/mdstat
+````
+6. Voir l'état du RAID 
+````bash
+sudo mdadm --detail /dev/md0
+````
+7. Formatage du RAID en système de fichiers ext4
+````bash
+sudo mkfs.ext4 /dev/md0 -L "PersonalData"
+````
+8. Vérification, md0 est bien formaté en ext4
+````bash
+lsblk -f
+````
+9. Montage du RAID
+````bash
+sudo mkdir /home/wilder/Data-RAID1 -p
+sudo mount /dev/md0 /home/wilder/Data-RAID1/
+````
+Pour que le RAID soit monté automatiquement, rajouter la ligne dans le fichier /etc/fstab
+````
+/dev/md0   /home/wilder/DATA-RAID1   ext4   nofail   0   0
+````
+10. Verrouillage du nom md0
+````bash
+mdadm --detail --scan
+````
+Rajouter le résultat de cette commande dans le fichier /etc/mdadm/mdadm.conf
+Forcer la mise en application des changements avec la commande `sudo update-initramfs -u` et redémarrer la machine. 

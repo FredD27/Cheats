@@ -1,0 +1,69 @@
+LVM
+1. Ajout d'un nouveau disque à la machine sur virtualBox
+2. Création du Physical Volume
+````
+pvcreate /dev/sdb
+````
+Vérification 
+````
+pvs
+````
+3. Ajout du Physical Volume au Group Volume vbox-vg
+````
+vgextend debian-vg /dev/sdb
+````
+Vérification 
+````
+vgs
+````
+4. Création d'un Logical Volume
+````
+lvcreate -L 20G -n nouveau_lv vbox-vg
+````
+5. Création du snapshot de LV `home`
+````
+lvcreate -L 20G -n nouveau_lv vbox-vg
+````
+6. Montage du snapshot créé sur `/home-snap`
+````
+mkdir /mnt/home-snap
+mount /dev/vbox-vg/home-snap /mnt/home-snap
+````
+7. `/home-snap`est bien une copie de `/home`car la commande ci-dessous ne renvoie rien, il n'y a donc pas de différence entre les 2
+````
+diff -r /home /mnt/home-snap 
+````
+8. Démontage de `home-snap`
+````
+umount /mnt/home-snap
+````
+9. Destruction du snapshot
+````
+lvremove /dev/vbox-vg/home-snap
+````
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Formatage
+````
+mkfs.ext4 dev/vbox-vg/nouveau_lv
+````
+Montage
+````
+mkdir /mnt/nouveau_lv
+mount /dev/vbox-vg/nouveau_lv /mnt/nouveau_lv
+````

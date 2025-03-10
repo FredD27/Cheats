@@ -1,0 +1,51 @@
+Les logs
+Sur machine Debian 12
+
+1. Faire la mise à jour
+````bash
+sudo apt update && sudo apt upgrade -y
+````
+2. Installer apache 2
+````bash
+sudo apt install apache2 -y
+````
+3. Vérifier que apache 2 fonctionne
+````bash
+sudo systemctl start apache2
+sudo systemctl status apache2
+````
+4. Configurer le logging
+Vérification, les logs d'accès et d'erreurs sont bien dans `/var/log/apache2`
+Configuration, éditer le fichier `/etc/apache2/apache2.conf`
+````
+ErrorLog ${APACHE_LOG_DIR}/error.log  ==> déjà présente
+CustomLog ${APACHE_LOG_DIR}/access.log  ==> à rajouter
+````
+5. Générer des requêtes
+Avec un client, je ping tout d'abord mon serveur pour voir s'il répond bien puis je vais sous son navigateur et lance plusieurs requêtes, valides et invalides comme 192.168.1.17/toto
+
+6. Analyse des logs générés
+Aller dans `/var/log/apache2`
+- Requêtes réussies  
+````bash
+cat access.log | grep "200"
+````
+==> lorsque j'ai fait mes requêtes GET sur l'adresse ip de mon serveur apache2, tout s'est bien passé.
+timestamp [23/Dec/2024:12:41:18 +0100]
+niveau de log [GET … 200] ==> 200 statut de succès
+source "Mozilla/5.0 (Windows…)"
+
+- Erreurs 404  
+````bash
+cat access.log | grep "404"
+````
+==> lorsque j'ai fait mes requêtes GET sur des routes inexistantes comme `<ip de mon serveur apache2>/test`, j'ai eu une erreur "Not found".
+timestamp [23/Dec/2024:12:41:27 +0100]
+niveau de log [GET /test HTTP/1.1 … 404] ==> 404 Statut d'erreur
+source "Mozilla/5.0 (Windows…)"
+
+- Adresses IP les plus fréquentes
+````bash 
+cut -d ' ' -f 1 /var/log/apache2/access.log | sort | uniq -c | sort -nr
+````
+
