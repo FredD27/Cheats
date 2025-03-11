@@ -12,7 +12,7 @@ sudo systemctl status ssh
 3. Génération d'une clé sur le client
 ssh-keygen -t rsa
 
-4. Copier la clé publique sur le serveur
+4. Copier la clé publique sur le serveur (manip sur le client)
 ssh-copy-id user@nomserveur
 
 5. Vérification
