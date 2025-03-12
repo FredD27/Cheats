@@ -1,0 +1,34 @@
+Étape 2 - Initialisation et création des LV
+1️⃣ Vérifier si LVM est installé
+Ouvre un terminal et tape :
+lvm version
+ou
+apt list --installed lvm2
+Si LVM n’est pas installé, installe-le avec :
+sudo apt install lvm2 -y
+
+2️⃣ Identifier les disques à utiliser
+Liste tous les disques présents sur ta machine :
+sudo fdisk -l
+Les disques supplémentaires devraient être /dev/sdb et /dev/sdc.
+
+3️⃣ Initialiser les disques pour LVM
+Exécute ces commandes pour préparer les disques :
+sudo pvcreate /dev/sdb
+sudo pvcreate /dev/sdc
+Vérifie que tout est bien pris en compte avec :
+sudo pvdisplay
+
+4️⃣ Créer un groupe de volumes (VG)
+On va créer un groupe de volumes nommé vg_datas en utilisant /dev/sdb et /dev/sdc :
+sudo vgcreate vg_datas /dev/sdb /dev/sdc
+Vérifie avec :
+sudo vgdisplay
+Tu dois voir un VG Size correspondant à la somme des deux disques (30 Go).
+
+5️⃣ Créer un volume logique (LV)
+On crée un volume logique de 25 Go appelé lv_datas :
+sudo lvcreate -L 25G -n lv_datas vg_datas
+Vérifie la création avec :
+sudo lvdisplay
+Tu dois voir LV Size = 25G.
