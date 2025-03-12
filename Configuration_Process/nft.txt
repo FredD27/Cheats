@@ -1,0 +1,87 @@
+1. Afficher les listes nft
+nft list ruleset
+
+Exemple et signification :
+
+flush ruleset
+ table inet inet_filter_table {
+ chain in_chain {
+ type filter hook input priority filter; policy drop;
+ ct state established, related accept
+ ct state invalid drop
+ iifname lo accept
+ tcp dport ssh accept
+ ip protocol icmp accept
+ ip6 nexthdr icmpv6 accept
+ }
+ }
+ # Ajout des règles pour Bareos
+ tcp dport { 9101-9103 } ct state new accept
+
+Signification:
+📌 1. Réinitialisation des règles
+flush ruleset
+🔹 Explication : Supprime toutes les règles, chaînes et tables existantes pour partir d’une configuration propre.
+
+📌 2. Création d’une table de filtrage
+table inet inet_filter_table {
+🔹 Explication :
+table inet → Crée une table qui fonctionne à la fois pour IPv4 et IPv6.
+inet_filter_table → Nom de la table, ici utilisée pour le filtrage des paquets réseau.
+
+📌 3. Définition d'une chaîne de filtrage pour l’entrée
+chain in_chain {
+ type filter hook input priority filter; policy drop;
+🔹 Explication :
+chain in_chain → Création d’une chaîne appelée in_chain.
+type filter → Indique qu'il s'agit d'une chaîne de filtrage.
+hook input → Cette chaîne s'applique aux paquets entrant sur la machine.
+priority filter → Définit la priorité de la chaîne (niveau par défaut).
+policy drop → Tout le trafic entrant est bloqué par défaut, sauf si une règle l’autorise explicitement.
+
+📌 4. Autorisation des connexions déjà établies ou associées
+ct state established, related accept
+🔹 Explication :
+ct state established → Accepte les paquets appartenant à une connexion existante (ex. réponse d’un serveur Web après une requête HTTP).
+ct state related → Accepte les connexions liées à une autre connexion déjà établie (ex. réponse ICMP pour un traceroute).
+
+📌 5. Rejet des paquets invalides
+ct state invalid drop
+🔹 Explication :
+ct state invalid → Détecte et bloque les paquets qui ne font pas partie d’une connexion valide (ex. paquets corrompus).
+
+📌 6. Autorisation du trafic sur l'interface loopback (localhost)
+iifname lo accept
+🔹 Explication :
+iifname lo → Si l’interface d’entrée est lo (loopback), le trafic est accepté.
+Important pour permettre les communications internes sur la machine (ex. applications locales).
+
+📌 7. Autorisation des connexions SSH
+tcp dport ssh accept
+🔹 Explication :
+tcp dport ssh → Accepte les paquets TCP à destination du port 22 (SSH).
+accept → Autorise la connexion pour permettre l’accès distant en SSH.
+
+📌 8. Autorisation du trafic ICMP (ping, traceroute...)
+ip protocol icmp accept
+🔹 Explication :
+ip protocol icmp → Accepte les paquets ICMP pour IPv4 (ex. ping, traceroute).
+Permet de diagnostiquer les connexions réseau.
+
+📌 9. Autorisation du trafic ICMPv6 (pour IPv6)
+ip6 nexthdr icmpv6 accept
+🔹 Explication :
+ip6 nexthdr icmpv6 → Accepte les paquets ICMPv6, essentiels pour le bon fonctionnement d’IPv6 (ex. découverte de voisinage).
+
+📌 🔧 Ajout des règles spécifiques pour Bareos
+tcp dport { 9101-9103 } ct state new accept
+🔹 Explication :
+tcp dport { 9101-9103 } → Accepte les connexions TCP sur les ports 9101 à 9103 (utilisés par Bareos, un logiciel de sauvegarde).
+ct state new → Cette règle ne s'applique que pour les nouvelles connexions initiées vers ces ports.
+
+*🎯 Résumé
+✅ Politique stricte : Tout est bloqué sauf les services explicitement autorisés.
+✅ Connexion SSH autorisée pour l'administration à distance.
+✅ Trafic ICMP autorisé pour le diagnostic réseau.
+✅ Support d’IPv6 avec ICMPv6.
+✅ Ports Bareos ouverts pour permettre les sauvegardes.
