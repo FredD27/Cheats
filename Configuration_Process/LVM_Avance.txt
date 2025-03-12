@@ -51,7 +51,7 @@ Pour éviter de devoir remonter manuellement après un redémarrage, on ajoute u
 /dev/vg_datas/lv_datas    /mnt/datas    ext4    defaults   0   2
 
 
-🔬 Étape 4 - Étendre le LV
+🔬 Étape 3 - Étendre le LV
 1️⃣ Vérifier l’espace libre dans le VG
 Avant d’agrandir un volume logique, on doit voir combien d’espace libre est disponible :
 sudo vgs
@@ -71,7 +71,7 @@ Vérifie avec :
 df -h | grep datas
 La taille du point de montage /mnt/datas doit maintenant être augmentée. 🎉
 
-🔬 Étape 5 - Ajout d'un disque au PV existant
+🔬 Étape 4 - Ajout d'un disque au PV existant
 On va ajouter le disque de 25 Go (/dev/sdd) à notre groupe de volumes vg_datas.
 
 1️⃣ Initialiser le nouveau disque
@@ -107,3 +107,46 @@ df -h | grep datas2
 5️⃣ Montage automatique au démarrage
 Ajoute l’entrée dans /etc/fstab :
 /dev/vg_datas/lv_datas2    /mnt/datas2    ext4    defaults   0   2
+
+
+🔬 Étape 5 - Création d'un snapshot
+Un snapshot est une copie instantanée d’un volume logique, utile pour les sauvegardes.
+
+1️⃣ Créer un fichier test
+On va créer un fichier dans /mnt/datas2 pour voir l'effet du snapshot :
+echo "Contenu avant création du snapshot !" | sudo tee /mnt/datas2/test_file.txt
+Vérifie qu’il est bien là :
+ls /mnt/datas2
+cat /mnt/datas2/test_file.txt
+
+2️⃣ Créer le snapshot
+On crée un snapshot de 5 Go de lv_datas2 :
+sudo lvcreate --size 5G --snapshot --name lv_datas_snap /dev/vg_datas/lv_datas2
+Vérifie avec :
+sudo lvdisplay
+Tu devrais voir lv_datas_snap avec le statut snapshot.
+
+3️⃣ Monter le snapshot
+On crée un dossier et on monte le snapshot :
+sudo mkdir /mnt/datas_snap
+sudo mount /dev/vg_datas/lv_datas_snap /mnt/datas_snap
+Vérifie qu’il contient bien test_file.txt :
+ls /mnt/datas_snap
+cat /mnt/datas_snap/test_file.txt
+Le contenu doit être identique à /mnt/datas2.
+
+4️⃣ Tester l’indépendance du snapshot
+Ajoute un nouveau fichier dans /mnt/datas2 :
+echo "Après création du snapshot" | sudo tee /mnt/datas2/test_file1.txt
+Vérifie son apparition :
+ls /mnt/datas2
+ls /mnt/datas_snap
+✅ Si test_file1.txt n’apparaît pas dans /mnt/datas_snap, c'est bien un snapshot indépendant !
+
+5️⃣ Supprimer le snapshot
+On démonte et supprime le snapshot :
+sudo umount /mnt/datas_snap
+sudo lvremove /dev/vg_datas/lv_datas_snap
+Confirme avec :
+sudo lvdisplay
+Le snapshot ne doit plus apparaître.
